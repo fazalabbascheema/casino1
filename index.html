@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Demo Casino</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0a0a0a;
+      color: white;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+    .screen {
+      display: none;
+      padding: 40px;
+    }
+    .active {
+      display: block;
+    }
+    input {
+      padding: 10px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      margin-right: 10px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      background: gold;
+      cursor: pointer;
+    }
+    .coin {
+      color: gold;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div id="referral-screen" class="screen active">
+    <h1>Enter Referral Code</h1>
+    <input type="text" id="refCode" placeholder="6-digit code" maxlength="6" />
+    <button onclick="checkCode()">Submit</button>
+    <p id="message"></p>
+  </div>
+
+  <div id="main-screen" class="screen">
+    <h1>🎰 Welcome to Demo Casino 🎰</h1>
+    <p>Your balance: <span class="coin" id="coins">0</span> coins</p>
+    <p>Buy lottery ticket:</p>
+    <button onclick="buy('1 Hour', 10)">1 Hour – 10 coins</button>
+    <button onclick="buy('1 Day', 50)">1 Day – 50 coins</button>
+    <button onclick="buy('2 Weeks', 200)">2 Weeks – 200 coins</button>
+    <button onclick="buy('1 Month', 500)">1 Month – 500 coins</button>
+    <p id="lotteryMsg"></p>
+  </div>
+
+  <script>
+    const validCodes = [
+      483920,192837,746201,509384,615239,847561,324908,980731,572614,438029,
+      230194,718562,659203,903847,126593,845320,437918,561239,209384,672851,
+      394820,758621,290384,619573,804215,238490,560123,491726,730294,815632,
+      203948,472819,659104,893720,154902,381546,967123,742809,680935,592013
+    ];
+
+    let usedCodes = JSON.parse(localStorage.getItem('usedCodes')) || [];
+    let coins = parseInt(localStorage.getItem('coins')) || 0;
+
+    function checkCode() {
+      const code = parseInt(document.getElementById('refCode').value);
+      const msg = document.getElementById('message');
+
+      if (usedCodes.includes(code)) {
+        msg.textContent = "❌ Code already used!";
+      } else if (validCodes.includes(code)) {
+        usedCodes.push(code);
+        localStorage.setItem('usedCodes', JSON.stringify(usedCodes));
+        coins = 1000;
+        localStorage.setItem('coins', coins);
+        msg.textContent = "✅ Success! You received 1000 coins.";
+        setTimeout(startCasino, 1000);
+      } else {
+        msg.textContent = "❌ Invalid code!";
+      }
+    }
+
+    function startCasino() {
+      document.getElementById('referral-screen').classList.remove('active');
+      document.getElementById('main-screen').classList.add('active');
+      document.getElementById('coins').textContent = coins;
+    }
+
+    function buy(option, price) {
+      if (coins >= price) {
+        coins -= price;
+        localStorage.setItem('coins', coins);
+        document.getElementById('coins').textContent = coins;
+        document.getElementById('lotteryMsg').textContent =
+          `🎟️ You bought ${option} lottery ticket for ${price} coins!`;
+      } else {
+        document.getElementById('lotteryMsg').textContent = "❌ Not enough coins!";
+      }
+    }
+
+    if (coins > 0) startCasino();
+  </script>
+</body>
+</html>
